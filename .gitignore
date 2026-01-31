@@ -1,0 +1,12 @@
+# Entorno virtual 🐍
+.venv/
+__pycache__/
+*.pyc
+
+# Archivos de datos locales 📁
+ultimo_numero.txt
+registro_contable.xlsx
+
+# Documentos generados (para que no llenes tu GitHub de PDFs) 📄
+*.docx
+*.pdf
