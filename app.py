@@ -14,7 +14,7 @@ class InvoiceApp(ctk.CTk):
 
         #Configuracion de la ventana
         self.title("Invoice System - Alejandro Manrique")
-        self.geometry("1200x800")
+        self.geometry("1200x1000")
 
         #Aqui iremos agregando los botones y textos
         self.label_titulo = ctk.CTkLabel(self, text="FACTURACION", font=("Roboto", 24))
