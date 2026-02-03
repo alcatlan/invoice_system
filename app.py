@@ -96,6 +96,12 @@ class InvoiceApp(ctk.CTk):
 
     def obtener_datos(self):
         print("\n--- INICIANDO VALIDACIÓN ---") # 🔍 Diagnóstico
+        # 1. Validamos si la lista está vacía
+        
+        if not self.servicios:
+            messagebox.showwarning("Lista Vacía", "Debes añadir al menos un servicio antes de generar la factura.")
+            return # Aquí se detiene y no sigue con el resto
+        
         try:
             email = self.entry_email.get().strip()
             tarifa_texto = self.entry_tarifa.get().strip()
@@ -156,7 +162,7 @@ class InvoiceApp(ctk.CTk):
         # Reseteamos la caja de texto visual de la lista de servicios
         for widget in self.frame_servicios.winfo_children():
             widget.destroy()
-        # 🟢 PEGA ESTO AQUÍ (Nueva confirmación visual)
+
         label_exito = ctk.CTkLabel(
             self.frame_servicios, 
             text=f"✅ Factura #{numero_a_usar} generada y enviada con éxito",
@@ -165,7 +171,7 @@ class InvoiceApp(ctk.CTk):
         )
         label_exito.pack(pady=20)
         
-        # --- Esto ya lo tienes (línea 134) ---
+
         print(f"✅ Proceso completado. Sistema listo para factura #{nuevo_numero_sugerido}")
             
     def agregar_servicio(self):
