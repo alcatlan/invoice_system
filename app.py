@@ -1,5 +1,6 @@
 import os
 import customtkinter as ctk
+from tkinter import messagebox
 from main import generar_factura_completa
 from dotenv import load_dotenv
 
@@ -92,24 +93,43 @@ class InvoiceApp(ctk.CTk):
     def actualizar_archivo_consecutivo(self, nuevo_numero):
         with open("ultimo_numero.txt", "w") as f:
             f.write(str(nuevo_numero))
+
     def obtener_datos(self):
-            # 1. Capturamos la tarifa y el email de los cuadros de texto
+        print("\n--- INICIANDO VALIDACIÓN ---") # 🔍 Diagnóstico
         try:
-            email = self.entry_email.get()
-            tarifa = float(self.entry_tarifa.get())
-            #Captura numero exacto de la casilla
+            email = self.entry_email.get().strip()
+            tarifa_texto = self.entry_tarifa.get().strip()
+            
+            # Convertimos y mostramos en la terminal el valor exacto
+            tarifa = float(tarifa_texto)
+            print(f"DEBUG: El programa leyó la tarifa como: [{tarifa}]")
+
+            #---------- FILTRO DE SEGURIDAD ---------
+            if tarifa <= 0:
+                print("DEBUG: Entró al IF (Tarifa <= 0). Mostrando error...")
+                messagebox.showerror("Error", f"La tarifa ({tarifa}) debe ser mayor a 0")
+                return # Esto DEBE detener la factura
+            #-----------------------------------------
+
             numero_a_usar = int(self.entry_invoice.get())
+            
         except ValueError:
-            # Esto evita que el programa se cierre si escribes letras en la tarifa 🛡️
-            print("❌ Error: Revisa que la tarifa y el numero sean correctos")
+            messagebox.showwarning("Error de Formato", "Ingresa números válidos en Tarifa y Factura")
+            return
+
+        # Validación de email
+        if "@" not in email or '.' not in email:
+            messagebox.showwarning("Email Inválido", "Ingresa un correo válido.")
             return         
-        # Usamos int() para asegurarnos de que sea un número entero
-        numero_actual = int(self.entry_invoice.get())
+
+        # Si llegamos aquí, es que la tarifa pasó la prueba ✅
+        print(f"✅ Validación exitosa. Generando factura con tarifa {tarifa}")
+        generar_factura_completa(tarifa, email, self.servicios, numero_a_usar)  
 
         print("\n--- RESUMEN DE FACTURA ---")
         print(f"💰 Tarifa: {tarifa} CAD/hr")
         print(f"📧 Enviar a: {email}")
-        print(f"📄 Invoice No: {numero_actual}")
+        print(f"📄 Invoice No: {numero_a_usar}")
         print("🛠️ Servicios registrados:")
         
         for s in self.servicios:
@@ -117,7 +137,7 @@ class InvoiceApp(ctk.CTk):
 
         # 🚀 ¡LLAMADA AL MOTOR! 
         # IMPORTANTE: Ahora pasamos 'numero_actual' como el cuarto argumento
-        generar_factura_completa(tarifa, email, self.servicios, numero_actual)
+        generar_factura_completa(tarifa, email, self.servicios, numero_a_usar)
         
         # 3. INCREMENTO AUTOMÁTICO 🔄
         # Calculamos el siguiente número para la próxima factura
@@ -151,21 +171,32 @@ class InvoiceApp(ctk.CTk):
     def agregar_servicio(self):
         # 1. Capturamos los valores actuales
         descripcion = self.entry_desc.get()
-        horas = self.entry_horas.get()
+        horas_texto = self.entry_horas.get()
 
-        # Validamos que no estén vacíos
-        if descripcion and horas:
-            # 2. Guardamos en nuestra lista interna
-            servicio = {"descripcion": descripcion, "horas": float(horas)}
+        # 2. Validamos de campos vacios
+        if not descripcion or not horas_texto:
+            messagebox.showwarning("Campos Vacios", "Por favor, completa tanto la descripcion como las horas")
+            return
+        try:
+            # 3 . Intento de conversion y validacion logica
+
+            horas = float(horas_texto)
+
+            if horas <= 0:
+                messagebox.showerror("Error de horas","La cantidad de horas debe ser un numero mayor a 0.")
+                return
+            
+            # 4. Si todo es correto(True) guardamos en la lista interna
+            servicio = {"descripcion": descripcion, "horas": float(horas_texto)}
             self.servicios.append(servicio)
             
-            print(f"✅ Añadido: {descripcion} ({horas} hrs)")
+            print(f"✅ Añadido: {descripcion} ({horas_texto} hrs)")
             
-            # 3. Limpiamos los cuadros de texto
+            # 5. Limpiamos los cuadros de texto
             self.entry_desc.delete(0, 'end')
             self.entry_horas.delete(0, 'end')
-            # Actualizamos la lista visual
-            # Creamos un pequeño contenedor para este servicio específico (la "tarjeta")
+            # Actualizamos la interfaz visual (la "tarjeta")
+
             fila = ctk.CTkFrame(self.frame_servicios)
             fila.pack(fill="x", padx=5, pady=2)
 
@@ -174,11 +205,14 @@ class InvoiceApp(ctk.CTk):
             lbl.pack(side="left", padx=10)
 
             # ¡El botón de eliminar! 🗑️
-            btn_del = ctk.CTkButton(fila, text="X", width=30, fg_color="red", 
-                                    command=lambda f=fila, s=servicio: self.eliminar_servicio_individual(f, s))
+            btn_del = ctk.CTkButton(
+                fila, text="X", width=30, fg_color="red", 
+                command=lambda f=fila, s=servicio: self.eliminar_servicio_individual(f, s)
+                )
             btn_del.pack(side="right", padx=5)
-        else:
-            print("⚠️ Por favor, llena ambos campos del servicio.")
+        except ValueError:
+            #Capturamos si el usuario escribio letrar en le campo horas
+            messagebox.showerror("Error de formato", "En el campo 'Horas' solo se permiten numeros")
 
     def eliminar_servicio_individual(self, frame_fila, servicio_dict):
     # Lo quitamos de la lista interna para que no salga en la factura
