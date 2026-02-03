@@ -6,6 +6,7 @@ from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches
 from docx2pdf import convert
 from dotenv import load_dotenv
+from tkinter import messagebox
 import os 
 load_dotenv()
 
@@ -105,16 +106,24 @@ def generar_factura_completa(TARIFA_HORA, email_cliente, servicios, numero_factu
     fecha_limpia = fecha_hoy.replace(' ', '_').replace(',', '')
     nombre_unico = f"Invoice_{invoice_string}_{fecha_limpia}"
 
-    doc.save(f"{nombre_unico}.docx")
-    print(f"✨ ¡Word generado: {nombre_unico}.docx!")
+    try:
 
-    print("Generando PDF... ⏳")
-    convert(f"{nombre_unico}.docx", f"{nombre_unico}.pdf")
-    print(f"✅ ¡PDF creado: {nombre_unico}.pdf!")
+        doc.save(f"{nombre_unico}.docx")
+        print(f"✨ ¡Word generado: {nombre_unico}.docx!")
 
-    # 7. Excel y Correo Automático
+        print("Generando PDF... ⏳")
+        convert(f"{nombre_unico}.docx", f"{nombre_unico}.pdf")
+        print(f"✅ ¡PDF creado: {nombre_unico}.pdf!")
+    except Exception as e:
+# 🕵️‍♂️ Esto nos dirá el nombre exacto del error y qué lo causó
+        error_tipo = type(e).__name__
+        print(f"❌ DEBUG: Se detectó un error de tipo [{error_tipo}]: {e}")
+        messagebox.showerror("Error de Archivo", f"No se pudo procesar la factura.\n\nDetalle: {e}")
+        return # 🛑 Forzamos la detención
+
+        # 7. Excel y Correo Automático
     registrar_en_excel(fecha_hoy, invoice_string, subtotal)
-    
+        
     print(f"Enviando factura {invoice_string} a {email_cliente}... ⏳")
     exito = enviar_factura_por_email(email_cliente, f'{nombre_unico}.pdf', invoice_string)
     
