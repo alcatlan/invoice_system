@@ -49,8 +49,8 @@ def generar_factura_completa(TARIFA_HORA, email_cliente, servicios, numero_factu
     doc.add_paragraph("119  50 Via Calabria St")
     doc.add_paragraph(f"Email: {email_cliente}")
 
-    numero_factura = obtener_y_actualizar_consecutivo()
-    invoice_string = f"2026-{numero_factura:03}"
+    # numero_factura = obtener_y_actualizar_consecutivo()
+    invoice_string = f"2026-{numero_factura:03}" 
     doc.add_paragraph(f"Invoice No: {invoice_string}")
     doc.add_paragraph(f"Date Issued: {fecha_hoy}")
 

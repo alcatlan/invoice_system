@@ -94,44 +94,59 @@ class InvoiceApp(ctk.CTk):
             f.write(str(nuevo_numero))
     def obtener_datos(self):
             # 1. Capturamos la tarifa y el email de los cuadros de texto
-            email = os.getenv("MI_CORREO")
-            tarifa = os.getenv("TARIFA_HORA")
-            
-            # 2. Obtenemos el número que escribiste o que ya estaba en el cuadro
-            # Usamos int() para asegurarnos de que sea un número entero
-            numero_actual = int(self.entry_invoice.get())
+        try:
+            email = self.entry_email.get()
+            tarifa = float(self.entry_tarifa.get())
+            #Captura numero exacto de la casilla
+            numero_a_usar = int(self.entry_invoice.get())
+        except ValueError:
+            # Esto evita que el programa se cierre si escribes letras en la tarifa 🛡️
+            print("❌ Error: Revisa que la tarifa y el numero sean correctos")
+            return         
+        # Usamos int() para asegurarnos de que sea un número entero
+        numero_actual = int(self.entry_invoice.get())
 
-            print("\n--- RESUMEN DE FACTURA ---")
-            print(f"💰 Tarifa: {tarifa} CAD/hr")
-            print(f"📧 Enviar a: {email}")
-            print(f"📄 Invoice No: {numero_actual}")
-            print("🛠️ Servicios registrados:")
-            
-            for s in self.servicios:
-                print(f"  - {s['descripcion']}: {s['horas']} horas")
+        print("\n--- RESUMEN DE FACTURA ---")
+        print(f"💰 Tarifa: {tarifa} CAD/hr")
+        print(f"📧 Enviar a: {email}")
+        print(f"📄 Invoice No: {numero_actual}")
+        print("🛠️ Servicios registrados:")
+        
+        for s in self.servicios:
+            print(f"  - {s['descripcion']}: {s['horas']} horas")
 
-            # 🚀 ¡LLAMADA AL MOTOR! 
-            # IMPORTANTE: Ahora pasamos 'numero_actual' como el cuarto argumento
-            generar_factura_completa(tarifa, email, self.servicios, numero_actual)
-            
-            # 3. INCREMENTO AUTOMÁTICO 🔄
-            # Calculamos el siguiente número para la próxima factura
-            nuevo_numero = numero_actual + 1
-            
-            # Guardamos este nuevo número en el archivo 'ultimo_numero.txt'
-            self.actualizar_archivo_consecutivo(nuevo_numero)
-            
-            # Actualizamos visualmente el cuadro de la ventana para que ya diga el siguiente
-            self.entry_invoice.delete(0, 'end')
-            self.entry_invoice.insert(0, str(nuevo_numero))
+        # 🚀 ¡LLAMADA AL MOTOR! 
+        # IMPORTANTE: Ahora pasamos 'numero_actual' como el cuarto argumento
+        generar_factura_completa(tarifa, email, self.servicios, numero_actual)
+        
+        # 3. INCREMENTO AUTOMÁTICO 🔄
+        # Calculamos el siguiente número para la próxima factura
+        nuevo_numero_sugerido = numero_a_usar + 1
+        
+        # Guardamos este nuevo número en el archivo 'ultimo_numero.txt'
+        self.actualizar_archivo_consecutivo(nuevo_numero_sugerido)
+        
+        # Actualizamos visualmente el cuadro de la ventana para que ya diga el siguiente
+        self.entry_invoice.delete(0, 'end')
+        self.entry_invoice.insert(0, str(nuevo_numero_sugerido))
 
-            # ✨ LIMPIEZA POST-FACTURACIÓN
-            self.servicios = [] # Vaciamos la lista interna
-            
-            # Reseteamos la caja de texto visual de la lista de servicios
-            for widget in self.frame_servicios.winfo_children():
-                widget.destroy()
-            print(f"✅ Proceso completado. Sistema listo para factura #{nuevo_numero}")
+        # ✨ LIMPIEZA POST-FACTURACIÓN
+        self.servicios = [] # Vaciamos la lista interna
+        
+        # Reseteamos la caja de texto visual de la lista de servicios
+        for widget in self.frame_servicios.winfo_children():
+            widget.destroy()
+        # 🟢 PEGA ESTO AQUÍ (Nueva confirmación visual)
+        label_exito = ctk.CTkLabel(
+            self.frame_servicios, 
+            text=f"✅ Factura #{numero_a_usar} generada y enviada con éxito",
+            text_color="#2ecc71",
+            font=ctk.CTkFont(size=14, weight="bold")
+        )
+        label_exito.pack(pady=20)
+        
+        # --- Esto ya lo tienes (línea 134) ---
+        print(f"✅ Proceso completado. Sistema listo para factura #{nuevo_numero_sugerido}")
             
     def agregar_servicio(self):
         # 1. Capturamos los valores actuales
