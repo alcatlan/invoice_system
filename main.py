@@ -5,7 +5,9 @@ from datetime import datetime
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.shared import Inches
 from docx2pdf import convert
+from dotenv import load_dotenv
 import os 
+load_dotenv()
 
 def obtener_y_actualizar_consecutivo(nombre_archivo="ultimo_numero.txt"):
     if not os.path.exists(nombre_archivo):
@@ -45,9 +47,9 @@ def generar_factura_completa(TARIFA_HORA, email_cliente, servicios, numero_factu
     # 2. Encabezados de la factura
     doc.add_heading('INVOICE NB - TX3 USER UPDATE', 0)
     doc.add_paragraph("Supplier:")
-    doc.add_paragraph("Alejandro Manrique Florez")
-    doc.add_paragraph("119  50 Via Calabria St")
-    doc.add_paragraph(f"Email: {email_cliente}")
+    doc.add_paragraph(os.getenv("NOMBRE_PROVEEDOR"))
+    doc.add_paragraph(os.getenv("DIRECCION_PROVEEDOR"))
+    doc.add_paragraph(f"Email: {os.getenv("EMAIL_PROVEEDOR")}")
 
     # numero_factura = obtener_y_actualizar_consecutivo()
     invoice_string = f"2026-{numero_factura:03}" 
