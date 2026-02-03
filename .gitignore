@@ -3,9 +3,15 @@
 __pycache__/
 *.pyc
 
+#Configuracion de Vs Code
+.vscode/
+
+
 # Archivos de datos locales 📁
 ultimo_numero.txt
 registro_contable.xlsx
+.env
+
 
 # Documentos generados (para que no llenes tu GitHub de PDFs) 📄
 *.docx
