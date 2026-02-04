@@ -8,6 +8,8 @@ from docx2pdf import convert
 from dotenv import load_dotenv
 from tkinter import messagebox
 import os 
+import pythoncom
+import comtypes.client
 load_dotenv()
 
 def obtener_y_actualizar_consecutivo(nombre_archivo="ultimo_numero.txt"):
@@ -28,7 +30,7 @@ def obtener_y_actualizar_consecutivo(nombre_archivo="ultimo_numero.txt"):
 def generar_factura_completa(TARIFA_HORA, email_cliente, servicios, numero_factura):
     # 1. Capturamos la fecha actual
     mes_actual = datetime.now().strftime("%B %d, %Y")
-    ruta_carpeta = os.path.join("Historial", mes_actual)
+    ruta_carpeta = os.path.join("Inv", mes_actual)
     doc = Document()
 
     if not os.path.exists(ruta_carpeta):
@@ -115,26 +117,41 @@ def generar_factura_completa(TARIFA_HORA, email_cliente, servicios, numero_factu
     fecha_limpia = mes_actual.replace(' ', '_').replace(',', '')
     nombre_unico = f"Invoice_{invoice_string}_{fecha_limpia}"
 
+    # 6. Guardado y Conversión (MOTOR ROBUSTO) 🛠️
     try:
+        # Guardar Word primero
+        doc.save(ruta_word)
+        print(f"✨ Word generado: {ruta_word}")
 
-        doc.save(f"{ruta_word}.docx")
-        print(f"✨ ¡Word generado: {ruta_word}.docx!")
+        # Iniciar comunicación con Windows
+        pythoncom.CoInitialize()
+        
+        # Crear instancia de Word invisible
+        word = comtypes.client.CreateObject('Word.Application')
+        word.Visible = False
+        
+        # Usar rutas absolutas (vital para el .exe)
+        abs_word = os.path.abspath(ruta_word)
+        abs_pdf = os.path.abspath(ruta_pdf)
+        
+        # Abrir, Guardar como PDF (17) y Cerrar
+        doc_word = word.Documents.Open(abs_word)
+        doc_word.SaveAs(abs_pdf, FileFormat=17)
+        doc_word.Close()
+        word.Quit()
+        
+        print(f"✅ PDF creado con éxito: {ruta_pdf}")
 
-        print("Generando PDF... ⏳")
-        convert(f"{ruta_word}.docx", f"{ruta_pdf}.pdf")
-        print(f"✅ ¡PDF creado: {ruta_carpeta}.pdf!")
     except Exception as e:
-# 🕵️‍♂️ Esto nos dirá el nombre exacto del error y qué lo causó
-        error_tipo = type(e).__name__
-        print(f"❌ DEBUG: Se detectó un error de tipo [{error_tipo}]: {e}")
-        messagebox.showerror("Error de Archivo", f"No se pudo procesar la factura.\n\nDetalle: {e}")
-        return # 🛑 Forzamos la detención
+        print(f"❌ Error en la conversión: {e}")
+        messagebox.showerror("Error", f"No se pudo crear el PDF: {e}")
+        return
 
         # 7. Excel y Correo Automático
     registrar_en_excel(mes_actual, invoice_string, subtotal)
         
     print(f"Enviando factura {invoice_string} a {email_cliente}... ⏳")
-    exito = enviar_factura_por_email(email_cliente, f'{ruta_pdf}.pdf', invoice_string)
+    exito = enviar_factura_por_email(email_cliente, ruta_pdf, invoice_string)
     
     if exito:
         print("✅ ¡Correo enviado exitosamente!")

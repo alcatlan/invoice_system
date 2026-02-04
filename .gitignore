@@ -3,6 +3,11 @@
 __pycache__/
 *.pyc
 
+#Ignorar Carpetas de Compilacion
+build/
+dist/
+*.spec
+
 #Configuracion de Vs Code
 .vscode/
 
@@ -11,7 +16,7 @@ __pycache__/
 ultimo_numero.txt
 registro_contable.xlsx
 .env
-
+Inv/
 
 # Documentos generados📄
 *.docx

@@ -5,6 +5,15 @@ from tkinter import messagebox
 from main import generar_factura_completa
 from dotenv import load_dotenv
 from datetime import datetime
+import sys
+
+def resource_path(relative_path):
+    """ Obtiene la ruta absoluta de los archivos para PyInstaller """
+    try:
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
 
 load_dotenv()
@@ -43,7 +52,7 @@ class InvoiceApp(ctk.CTk):
             # --- BOTÓN PARA ABRIR CARPETA 
         self.btn_folder = ctk.CTkButton(
             self.sidebar_frame, 
-            text="📂 Abrir Historial", 
+            text="📂 Abrir Inv", 
             command=self.abrir_carpeta_historial, # Llamamos a una función
             fg_color="#5D6D7E",
             hover_color="#34495E"
@@ -224,11 +233,11 @@ class InvoiceApp(ctk.CTk):
         # Aquí es donde más adelante llamaremos a tus funciones de main.py
 
     def abrir_carpeta_historial(self):
-        ruta = "Historial"
+        ruta = "Inv"
         if os.path.exists(ruta):
             os.startfile(ruta) # Esto abre la carpeta en Windows automáticamente
         else:
-            messagebox.showinfo("Carpeta no encontrada", "Aún no se ha creado la carpeta Historial. Genera tu primera factura primero.")
+            messagebox.showinfo("Carpeta no encontrada", "Aún no se ha creado la carpeta Inv. Genera tu primera factura primero.")
 
     def mostrar_progreso(self):
             # Creamos una ventana pequeña encima de la principal
