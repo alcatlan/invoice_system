@@ -27,8 +27,17 @@ def obtener_y_actualizar_consecutivo(nombre_archivo="ultimo_numero.txt"):
 # --- ESTA ES LA FUNCIÓN QUE LLAMARÁ TU APP.PY ---
 def generar_factura_completa(TARIFA_HORA, email_cliente, servicios, numero_factura):
     # 1. Capturamos la fecha actual
-    fecha_hoy = datetime.now().strftime("%B %d, %Y")
+    mes_actual = datetime.now().strftime("%B %d, %Y")
+    ruta_carpeta = os.path.join("Historial", mes_actual)
     doc = Document()
+
+    if not os.path.exists(ruta_carpeta):
+        os.makedirs(ruta_carpeta)
+        print(f"📂 Carpeta creada: {ruta_carpeta}")
+
+    nombre_base = f"Invoice_{numero_factura}_{datetime.now().strftime('%d_%m')}"
+    ruta_word = os.path.join(ruta_carpeta, f"{nombre_base}.docx")
+    ruta_pdf = os.path.join(ruta_carpeta, f"{nombre_base}.pdf")
     from docx.shared import Inches
     # 1. Accedemos al encabezado de la primera sección
     header = doc.sections[0].header
@@ -55,7 +64,7 @@ def generar_factura_completa(TARIFA_HORA, email_cliente, servicios, numero_factu
     # numero_factura = obtener_y_actualizar_consecutivo()
     invoice_string = f"2026-{numero_factura:03}" 
     doc.add_paragraph(f"Invoice No: {invoice_string}")
-    doc.add_paragraph(f"Date Issued: {fecha_hoy}")
+    doc.add_paragraph(f"Date Issued: {mes_actual}")
 
     # 3. Configuracion de la tabla
     tabla = doc.add_table(rows=1, cols=4)
@@ -103,17 +112,17 @@ def generar_factura_completa(TARIFA_HORA, email_cliente, servicios, numero_factu
     total_final.runs[0].bold = True 
 
     # 6. Guardado y Conversión
-    fecha_limpia = fecha_hoy.replace(' ', '_').replace(',', '')
+    fecha_limpia = mes_actual.replace(' ', '_').replace(',', '')
     nombre_unico = f"Invoice_{invoice_string}_{fecha_limpia}"
 
     try:
 
-        doc.save(f"{nombre_unico}.docx")
-        print(f"✨ ¡Word generado: {nombre_unico}.docx!")
+        doc.save(f"{ruta_word}.docx")
+        print(f"✨ ¡Word generado: {ruta_word}.docx!")
 
         print("Generando PDF... ⏳")
-        convert(f"{nombre_unico}.docx", f"{nombre_unico}.pdf")
-        print(f"✅ ¡PDF creado: {nombre_unico}.pdf!")
+        convert(f"{ruta_word}.docx", f"{ruta_pdf}.pdf")
+        print(f"✅ ¡PDF creado: {ruta_carpeta}.pdf!")
     except Exception as e:
 # 🕵️‍♂️ Esto nos dirá el nombre exacto del error y qué lo causó
         error_tipo = type(e).__name__
@@ -122,10 +131,10 @@ def generar_factura_completa(TARIFA_HORA, email_cliente, servicios, numero_factu
         return # 🛑 Forzamos la detención
 
         # 7. Excel y Correo Automático
-    registrar_en_excel(fecha_hoy, invoice_string, subtotal)
+    registrar_en_excel(mes_actual, invoice_string, subtotal)
         
     print(f"Enviando factura {invoice_string} a {email_cliente}... ⏳")
-    exito = enviar_factura_por_email(email_cliente, f'{nombre_unico}.pdf', invoice_string)
+    exito = enviar_factura_por_email(email_cliente, f'{ruta_pdf}.pdf', invoice_string)
     
     if exito:
         print("✅ ¡Correo enviado exitosamente!")
