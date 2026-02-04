@@ -1,27 +1,28 @@
-==========================================
-MANUAL DE USUARIO - SISTEMA DE FACTURACIÓN
-==========================================
+# 🧾 Sistema de Facturación Automatizado (Invoice Generator)
 
-¡Bienvenido! Este sistema genera facturas profesionales en Word y PDF 
-automáticamente y las envía por correo.
+¡Bienvenid@! Este es un sistema de facturación profesional desarrollado en **Python**. Permite generar facturas personalizadas, convertirlas a PDF, enviarlas automáticamente por correo electrónico y mantener un registro organizado en Excel.
 
-PASO 1: CONFIGURACIÓN INICIAL (Solo la primera vez)
---------------------------------------------------
-Antes de abrir la aplicación, abre el archivo llamado '.env' con el bloc de notas.
-Debes rellenar estos datos:
-- MI_CORREO: Tu correo de Gmail.
-- APP_PASSWORD: La contraseña de aplicación de Google (no es tu clave normal).
-  *Para obtenerla: Ve a tu Cuenta de Google > Seguridad > Verificación en 2 pasos > Contraseñas de aplicación.
+## ✨ Características Principales
 
-PASO 2: USO DE LA APP
----------------------
-1. Abre 'app.exe'.
-2. Verifica que el número de factura y la tarifa sean correctos.
-3. Escribe la descripción del servicio y las horas, luego pulsa "Añadir a la lista".
-4. Cuando termines de añadir servicios, pulsa "Generar Factura".
+* **Interfaz Gráfica Moderna:** Construida con `CustomTkinter` para una experiencia de usuario fluida y estética.
+* **Generación de Documentos:** Crea facturas en formato `.docx` y las convierte automáticamente a `.pdf`.
+* **Automatización de Correo:** Envía la factura generada directamente al cliente a través de Gmail.
+* **Seguimiento de Pagos:** Registra cada factura en un historial de Excel para un control contable sencillo.
+* **Seguridad:** Uso de variables de entorno (`.env`) para proteger las credenciales del usuario.
 
-PASO 3: ¿DÓNDE ESTÁN MIS ARCHIVOS?
-----------------------------------
-El programa creará automáticamente una carpeta llamada 'Historial'. 
-Dentro encontrarás tus facturas organizadas por Mes y Año. 
-¡También puedes abrirla directamente con el botón "Abrir Historial" de la App!
+## 🛠️ Tecnologías Utilizadas
+
+* **Python 3.x**
+* **CustomTkinter** (Interfaz de usuario)
+* **Python-docx** (Creación de documentos Word)
+* **Comtypes** (Conversión robusta a PDF)
+* **Smtplib** (Envío de correos electrónicos)
+
+## 🚀 Cómo usarlo
+
+1.  **Configuración:** Crea un archivo `.env` basado en el ejemplo del repositorio.
+2.  **Ejecución:** Corre el archivo `app.py` o abre el ejecutable generado.
+3.  **Facturación:** Ingresa los servicios, las horas y la tarifa. ¡El sistema se encarga del resto!
+
+---
+Desarrollado con ❤️ por Altecral.
