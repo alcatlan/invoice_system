@@ -23,6 +23,6 @@
 1.  **Configuración:** Crea un archivo `.env` basado en el ejemplo del repositorio.
 2.  **Ejecución:** Corre el archivo `app.py` o abre el ejecutable generado.
 3.  **Facturación:** Ingresa los servicios, las horas y la tarifa. ¡El sistema se encarga del resto!
-
+`por ahora solo es funcionable en windows y debes tener word`
 ---
 Desarrollado con ❤️ por Altecral.
