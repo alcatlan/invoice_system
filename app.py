@@ -25,7 +25,7 @@ class InvoiceApp(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("Invoice System - Alejandro Manrique")
+        self.title("Invoice System")
         self.geometry("1200x1000")
 
         # 1. Configuración de la cuadrícula principal
