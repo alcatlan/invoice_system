@@ -13,6 +13,6 @@ registro_contable.xlsx
 .env
 
 
-# Documentos generados (para que no llenes tu GitHub de PDFs) 📄
+# Documentos generados📄
 *.docx
 *.pdf
