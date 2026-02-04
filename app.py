@@ -4,6 +4,7 @@ from PIL import Image
 from tkinter import messagebox
 from main import generar_factura_completa
 from dotenv import load_dotenv
+from datetime import datetime
 
 
 load_dotenv()
@@ -19,36 +20,61 @@ class InvoiceApp(ctk.CTk):
         self.geometry("1200x1000")
 
         # 1. Configuración de la cuadrícula principal
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=0)
+        self.grid_rowconfigure(0, weight=0)
 
         # 2. SIDEBAR (Panel Izquierdo)
         self.sidebar_frame = ctk.CTkFrame(self, width=200, corner_radius=0)
         self.sidebar_frame.grid(row=0, column=0, sticky='nswe')
-        self.sidebar_frame.grid_rowconfigure(7, weight=1) 
+        self.sidebar_frame.grid_rowconfigure(7, weight=0) 
+        try:
+            img_original = Image.open("logo.png")
+            
+            # Guardamos la imagen en self.logo_image para que no desaparezca
+            self.logo_image = ctk.CTkImage(light_image=img_original,
+                                         dark_image=img_original,
+                                         size=(120, 30))
 
-        # --- Elementos del Sidebar ---
+            # 3. Creamos el Label Y LO UBICAMOS con .grid() 📍
+            self.label_logo = ctk.CTkLabel(self.sidebar_frame, image=self.logo_image, text="")
+            self.label_logo.grid(row=0, column=0, padx=20, pady=(20, 0)) # Fila 0            
+        except Exception as e:
+            print(f"No se pudo cargar el logo: {e}")
+            # --- BOTÓN PARA ABRIR CARPETA 
+        self.btn_folder = ctk.CTkButton(
+            self.sidebar_frame, 
+            text="📂 Abrir Historial", 
+            command=self.abrir_carpeta_historial, # Llamamos a una función
+            fg_color="#5D6D7E",
+            hover_color="#34495E"
+        )
+        self.btn_folder.grid(row=8, column=0, padx=20, pady=10)
+
+        
+        # Elementos del Side Bar (Panel Derecho)
         self.label_titulo = ctk.CTkLabel(self.sidebar_frame, text="FACTURACIÓN", font=("Roboto", 24, "bold"))
-        self.label_titulo.grid(row=0, column=0, padx=20, pady=20)
+        self.label_titulo.grid(row=1, column=0, padx=20, pady=20)
 
         self.label_invoice = ctk.CTkLabel(self.sidebar_frame, text="Próximo número de Invoice:")
-        self.label_invoice.grid(row=1, column=0, padx=20, pady=(10, 0))
+        self.label_invoice.grid(row=2, column=0, padx=20, pady=(10, 0))
         self.entry_invoice = ctk.CTkEntry(self.sidebar_frame, width=150)
-        self.entry_invoice.grid(row=2, column=0, padx=20, pady=(0, 10))
+        self.entry_invoice.grid(row=3, column=0, padx=20, pady=(0, 10))
         self.cargar_numero_inicial()
 
         self.label_tarifa = ctk.CTkLabel(self.sidebar_frame, text="Tarifa por hora (CAD):")
-        self.label_tarifa.grid(row=3, column=0, padx=20, pady=(10, 0))
+        self.label_tarifa.grid(row=4, column=0, padx=20, pady=(10, 0))
         self.entry_tarifa = ctk.CTkEntry(self.sidebar_frame)
-        self.entry_tarifa.grid(row=4, column=0, padx=20, pady=(0, 10))
+        self.entry_tarifa.grid(row=5, column=0, padx=20, pady=(0, 10))
         
         tarifa_env = os.getenv("TARIFA_HORA")
         if tarifa_env: self.entry_tarifa.insert(0, tarifa_env)
 
         self.label_email = ctk.CTkLabel(self.sidebar_frame, text="Correo del cliente:")
-        self.label_email.grid(row=5, column=0, padx=20, pady=(10, 0))
+        self.label_email.grid(row=6, column=0, padx=20, pady=(10, 0))
         self.entry_email = ctk.CTkEntry(self.sidebar_frame, width=250)
-        self.entry_email.grid(row=6, column=0, padx=20, pady=(0, 20))
+        self.entry_email.grid(row=7, column=0, padx=20, pady=(0, 20))
+
+        self.sidebar_frame.grid_rowconfigure(8,weight=1)
         
         email_env = os.getenv("MI_CORREO")
         if email_env: self.entry_email.insert(0, email_env)
@@ -197,6 +223,13 @@ class InvoiceApp(ctk.CTk):
         
         # Aquí es donde más adelante llamaremos a tus funciones de main.py
 
+    def abrir_carpeta_historial(self):
+        ruta = "Historial"
+        if os.path.exists(ruta):
+            os.startfile(ruta) # Esto abre la carpeta en Windows automáticamente
+        else:
+            messagebox.showinfo("Carpeta no encontrada", "Aún no se ha creado la carpeta Historial. Genera tu primera factura primero.")
+
     def mostrar_progreso(self):
             # Creamos una ventana pequeña encima de la principal
             self.ventana_carga = ctk.CTkToplevel(self)
@@ -211,6 +244,8 @@ class InvoiceApp(ctk.CTk):
             self.progreso = ctk.CTkProgressBar(self.ventana_carga, orientation="horizontal", mode="indeterminate")
             self.progreso.pack(pady=10, padx=20, fill="x")
             self.progreso.start() # Inicia el movimiento animado
+
+
 
 if __name__ == "__main__":
     app = InvoiceApp()
